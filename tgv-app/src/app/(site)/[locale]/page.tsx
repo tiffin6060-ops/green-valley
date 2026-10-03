@@ -15,6 +15,7 @@ export default async function Home({ params }: PageProps<"/[locale]">) {
   setRequestLocale((await params).locale);
   return (
     <main id="home">
+
       <Hero />
       <Stats />
       <Intro />

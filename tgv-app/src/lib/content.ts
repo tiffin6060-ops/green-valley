@@ -7,8 +7,10 @@
 import {
   heroSlides,
   progressVideo,
+  banner,
   type HeroSlide,
   type ProgressVideo,
+  type Banner,
 } from "@/data/content";
 import { db } from "@/lib/db";
 import { mediaExists, versioned } from "./media";
@@ -55,4 +57,8 @@ export async function getAvailableProgressVideo(): Promise<ResolvedProgressVideo
 export async function hasProgressSection(): Promise<boolean> {
   const [video, list] = await Promise.all([getAvailableProgressVideo(), getPublishedUpdates(1)]);
   return video !== null || list.length > 0;
+}
+export async function getBanner(): Promise<Banner | null> {
+  if (!mediaExists(banner.src)) return null;
+  return { ...banner, src: versioned(banner.src) };
 }

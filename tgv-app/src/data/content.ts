@@ -24,22 +24,39 @@ export const site = {
   ).replace(/\/$/, ""),
 };
 
+export type Banner = { src: string; href: string; alt: Localized };
+
+export const banner: Banner = {
+  src: "/hero/banner.jpg",
+  href: "#investment", // where a click goes; use "" for no link
+  alt: {
+    en: "Trishal Green Valley Agro Farm — Farm Builder investment plans",
+    bn: "ত্রিশাল গ্রীন ভ্যালি এগ্রো ফার্ম — ফার্ম বিল্ডার ইনভেস্টমেন্ট প্ল্যান",
+  },
+};
+
 /* ------------------------------------------------------------------ */
 /* Hero slider. Files go in /public/hero (or use absolute https URLs on NEXT_PUBLIC_MEDIA_HOST).
  * Slides whose local file is missing are skipped at build time; with none, the hero shows
  * the green gradient. `objectPosition` (CSS, e.g. "50% 30%") controls the crop focus.
  * `alt` is optional; without it the generic "hero.slideAlt" message is used.
  * TODO(client): add a short real description (en + bn) for each photo. */
-export type HeroSlide = { src: string; alt?: Localized; objectPosition?: string };
+export type HeroSlide = { src: string; alt?: Localized; objectPosition?: string; bare?: boolean };
 
 export const heroSlides: HeroSlide[] = [
+  {
+    src: "/hero/banner.jpg",
+    alt: {
+      en: "Trishal Green Valley Agro Farm — Farm Builder investment plans",
+      bn: "ত্রিশাল গ্রীন ভ্যালি এগ্রো ফার্ম — ফার্ম বিল্ডার ইনভেস্টমেন্ট প্ল্যান",
+    },
+  },
   { src: "/hero/slide-1.jpg" },
   { src: "/hero/slide-2.jpg" },
   { src: "/hero/slide-3.jpg" },
   { src: "/hero/slide-4.jpg" },
   { src: "/hero/slide-5.jpg" },
 ];
-
 /* ------------------------------------------------------------------ */
 /* Stats — only `verified: true` entries are rendered. Label: messages "stats.<key>".
  * `value` is a number (formatted per locale, e.g. ৩২) or a message key (e.g. "live"). */

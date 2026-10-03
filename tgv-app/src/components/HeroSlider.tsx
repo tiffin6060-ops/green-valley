@@ -59,7 +59,7 @@ function SlideImage({ slide, first }: { slide: ResolvedSlide; first: boolean }) 
       priority={first}
       loading={first ? undefined : "eager"}
       unoptimized={!canOptimize(slide.src)}
-      className="object-cover"
+      className={slide.bare ? "object-contain" : "object-cover"}
       style={slide.objectPosition ? { objectPosition: slide.objectPosition } : undefined}
     />
   );
@@ -89,6 +89,7 @@ type Props = {
  *   slider never looks "stuck". Pressing Play overrides the holds until the pointer/focus
  *   leaves and comes back.
  * - Also pauses when the tab is hidden or the hero is scrolled off-screen.
+ * - A slide with `bare: true` (e.g. the banner) is shown whole, with no overlay and no headline.
  */
 export default function HeroSlider({ slides, label, className, overlay, children }: Props) {
   const n = slides.length;
@@ -145,6 +146,7 @@ export default function HeroSlider({ slides, label, className, overlay, children
   // Images mount for the first slide, the current and next slide, and any slide shown before.
   const next = (index + 1) % n;
   const mounted = (i: number) => i === 0 || i === index || i === next || seen.includes(i);
+  const bareNow = Boolean(slides[index]?.bare);
 
   const holdOn = (e: PointerEvent) => {
     if (e.pointerType === "mouse") setHoverHold(true);
@@ -233,16 +235,16 @@ export default function HeroSlider({ slides, label, className, overlay, children
               aria-roledescription="slide"
               aria-label={t("slide", { n: num(i + 1), total: num(n) })}
               aria-hidden={i !== index}
-              className={`absolute inset-0 ${reducedMotion ? "" : "transition-opacity duration-700 ease-in-out"} ${
-                i === index ? "opacity-100" : "opacity-0"
-              }`}
+              className={`absolute inset-0 ${s.bare ? "bg-[#eaf3e4]" : ""} ${
+                reducedMotion ? "" : "transition-opacity duration-700 ease-in-out"
+              } ${i === index ? "opacity-100" : "opacity-0"}`}
             >
               {mounted(i) && <SlideImage slide={s} first={i === 0} />}
             </div>
           ))}
         </div>
 
-        {overlay}
+        {!bareNow && overlay}
 
         <div
           className="absolute right-[6vw] bottom-6 z-[3] flex items-center gap-2 min-[901px]:right-[8vw]"
@@ -293,7 +295,11 @@ export default function HeroSlider({ slides, label, className, overlay, children
       </div>
 
       {/* Hovering a CTA pauses (the visitor is about to act); the headline and bare photo do not. */}
-      <div className="relative z-[2]" onPointerOver={holdOnInteractive} onPointerLeave={holdOff}>
+      <div
+        className={`relative z-[2] ${bareNow ? "invisible" : ""}`}
+        onPointerOver={holdOnInteractive}
+        onPointerLeave={holdOff}
+      >
         {children}
       </div>
     </section>
