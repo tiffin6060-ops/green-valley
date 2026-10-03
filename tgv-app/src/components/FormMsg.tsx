@@ -1,6 +1,6 @@
 "use client";
 import { startTransition, useActionState, useState } from "react";
-import type { FormState } from "@/app/auth-actions";
+import type { FormState } from "@/app/(app)/auth-actions";
 
 // Wraps a server action in a <form>. Uses onSubmit (not the `action` prop) so React does NOT wipe the
 // fields after a failed submit; on success the form remounts (fields cleared) unless resetOnOk=false.

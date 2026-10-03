@@ -1,6 +1,6 @@
 import Link from "next/link";
 import SideNav from "@/components/SideNav";
-import { logout } from "@/app/auth-actions";
+import { logout } from "@/app/(app)/auth-actions";
 import type { User } from "@/lib/auth";
 
 export default function Shell({

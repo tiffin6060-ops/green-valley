@@ -1,6 +1,6 @@
 "use client";
 import { useActionState } from "react";
-import { login, type FormState } from "@/app/auth-actions";
+import { login, type FormState } from "@/app/(app)/auth-actions";
 
 export default function LoginForm() {
   const [state, act, pending] = useActionState<FormState, FormData>(login, { ok: false, message: "" });

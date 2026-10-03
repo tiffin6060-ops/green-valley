@@ -1,0 +1,202 @@
+@import "tailwindcss";
+
+/* Dark mode follows the .dark class set by next-themes (not the OS media query directly). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Fixed brand palette (template/styles.css). Same in both themes. */
+@theme {
+  --color-green: #123f2d;
+  --color-deep: #0b2b20;
+  --color-sage: #dfe8df;
+  --color-cream: #f5f3eb;
+  --color-gold: #b89b61;
+
+  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-playfair), Georgia, serif;
+}
+
+/* Semantic, theme-aware tokens. Light = template values; dark = designed palette
+   (deep green-black, not an inversion). Utilities: bg-bg, bg-surface, text-ink, border-line, ... */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-brand: var(--brand);
+  --color-brand-contrast: var(--brand-contrast);
+  --color-accent: var(--accent);
+  --color-overlay: var(--overlay);
+  --color-btn: var(--btn);
+  --color-btn-ink: var(--btn-ink);
+  --color-track: var(--track);
+  --color-sec-deep: var(--sec-deep);
+  --color-sec-deep-line: var(--sec-deep-line);
+  --color-sec-visit: var(--sec-visit);
+  --color-sec-footer: var(--sec-footer);
+  --color-note: var(--note);
+  --color-note-line: var(--note-line);
+  --color-note-ink: var(--note-ink);
+}
+
+:root {
+  color-scheme: light;
+  --bg: #ffffff;
+  --surface: #f7f8f5; /* investment section */
+  --surface-2: #f5f3eb; /* cream: stats, notices */
+  --card: #ffffff;
+  --ink: #172019;
+  --ink-2: #4f5951; /* lead paragraphs */
+  --muted: #667068;
+  --faint: #6f7670; /* small print (AA on white) */
+  --line: #dfe3dd;
+  --line-strong: #ccd3ca;
+  --brand: #123f2d; /* brand green for text, links, accents */
+  --brand-contrast: #ffffff;
+  --accent: #b89b61;
+  --overlay: rgb(255 255 255 / 0.96); /* sticky header */
+  --btn: #0b2b20;
+  --btn-ink: #ffffff;
+  --track: #e5e8e3;
+  --sec-deep: #0b2b20; /* transparency */
+  --sec-deep-line: #3d584c;
+  --sec-visit: #526957;
+  --sec-footer: #101a14;
+  --note: #fff4cf;
+  --note-line: #ead891;
+  --note-ink: #5c4a12;
+}
+
+.dark {
+  color-scheme: dark;
+  --bg: #0c1410;
+  --surface: #111c16;
+  --surface-2: #16231b;
+  --card: #142019;
+  --ink: #e8efe9;
+  --ink-2: #c9d5cc;
+  --muted: #9fb0a4;
+  --faint: #8fa294;
+  --line: #223229;
+  --line-strong: #2e443a;
+  --brand: #8fd1a8; /* softer green for text/links on dark */
+  --brand-contrast: #0c1410;
+  --accent: #d1b57a;
+  --overlay: rgb(12 20 16 / 0.94);
+  --btn: #8fd1a8;
+  --btn-ink: #0b2b20;
+  --track: #223229;
+  /* Naturally dark sections stay distinct from the page background. */
+  --sec-deep: #0f3324;
+  --sec-deep-line: #2b5442;
+  --sec-visit: #2c4433;
+  --sec-footer: #070b09;
+  --note: #2a2410;
+  --note-line: #5c4a12;
+  --note-ink: #f3dc8a;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* keep anchor targets clear of the 82px sticky header */
+    scroll-padding-top: 82px;
+  }
+  body {
+    @apply bg-bg font-sans text-ink antialiased;
+  }
+  /* The template relies on browser defaults that Tailwind preflight resets:
+     normal line-height, bold headings and 1em paragraph margins. Restore them for design parity. */
+  html {
+    line-height: normal;
+  }
+  h1,
+  h2,
+  h3 {
+    font-weight: 700;
+  }
+  p {
+    margin-block: 1em;
+  }
+}
+
+@layer components {
+  .eyebrow {
+    @apply mt-0 mb-5 text-[11px] font-bold tracking-[3px] text-brand;
+  }
+  .eyebrow-light {
+    @apply text-[#cbdacb];
+  }
+  .display {
+    @apply mt-0 mb-[26px] font-display leading-[1.02];
+  }
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center border-0 px-[22px] py-[15px] text-xs font-bold tracking-[0.5px] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-primary {
+    @apply bg-[#e8f0dc] text-deep;
+  }
+  .btn-ghost {
+    @apply border border-white/60 text-white;
+  }
+  .btn-dark {
+    @apply bg-btn text-btn-ink;
+  }
+  .btn-outline-dark {
+    @apply border border-btn text-btn;
+  }
+  .section {
+    @apply px-[6vw] py-[75px] min-[901px]:px-[8vw] min-[901px]:py-[110px];
+  }
+}
+
+/* ------------------------------------------------------------------
+   Bangla (/bn). Unlayered so these win over utility classes, and scoped
+   to :lang(bn) so English pages are untouched.
+   - Noto Sans Bengali (body) / Noto Serif Bengali (headings); Latin falls back to DM Sans.
+   - Bengali conjuncts and vowel signs need more line-height.
+   - No uppercase or wide letter-spacing (Bengali has no case; tracking breaks conjuncts).
+   - No italics (Bengali has none): <em> emphasis uses weight/colour instead.
+   - Slightly smaller display headings to avoid overflow at 375px.
+   ------------------------------------------------------------------ */
+html:lang(bn) {
+  --font-sans: var(--font-noto-sans-bengali), var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-noto-serif-bengali), var(--font-playfair), Georgia, serif;
+  line-height: 1.8;
+}
+html:lang(bn) [lang="en"] {
+  /* English legal text inside Bangla pages keeps the template rhythm. */
+  line-height: normal;
+}
+html:lang(bn) .uppercase,
+html:lang(bn) .eyebrow {
+  text-transform: none;
+}
+html:lang(bn) .eyebrow,
+html:lang(bn) [class*="tracking-"] {
+  letter-spacing: 0;
+}
+html:lang(bn) .eyebrow {
+  font-size: 13px;
+}
+html:lang(bn) .brand-top {
+  font-size: 11px;
+}
+html:lang(bn) em {
+  font-style: normal;
+  font-weight: 700;
+}
+html:lang(bn) .display {
+  line-height: 1.3;
+}
+html:lang(bn) h1.display {
+  font-size: clamp(34px, 5.2vw, 68px);
+}
+html:lang(bn) h2.display {
+  font-size: clamp(30px, 4.2vw, 56px);
+}

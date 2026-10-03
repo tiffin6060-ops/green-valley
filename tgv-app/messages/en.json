@@ -1,0 +1,312 @@
+{
+  "meta": {
+    "title": "Trishal Green Valley — Integrated Commercial Farming & Agro-Tourism",
+    "description": "Trishal Green Valley is an integrated commercial farming and agro-tourism project in Trishal, Mymensingh, Bangladesh — livestock, fisheries, orchards and farm visits.",
+    "siteName": "Trishal Green Valley",
+    "ogAlt": "Trishal Green Valley Agro Farm logo"
+  },
+  "common": {
+    "brandName": "Trishal Green Valley",
+    "location": "Trishal • Mymensingh • Bangladesh",
+    "tagline": "Integrated Commercial Farming & Agro-Tourism",
+    "disclaimer": "Investment information is provided for evaluation and due diligence. Illustrations are not guaranteed returns.",
+    "notOffer": "Nothing on this website is an offer to sell, or a solicitation to buy, any investment.",
+    "rights": "© {year} {name}. All rights reserved.",
+    "logoAlt": "Trishal Green Valley Agro Farm logo"
+  },
+  "brand": {
+    "top": "TRISHAL",
+    "main": "GREEN VALLEY",
+    "sub": "Integrated Commercial Farming"
+  },
+  "nav": {
+    "home": "Trishal Green Valley home",
+    "main": "Main",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "project": "The Project",
+    "investment": "Investment",
+    "progress": "Progress",
+    "about": "About",
+    "contact": "Contact",
+    "bookVisit": "Book a Visit",
+    "otherLanguage": "বাংলা",
+    "otherLanguageLabel": "বাংলায় দেখুন (View in Bangla)",
+    "investorLogin": "Investor Login",
+    "live": "Live Farm"
+  },
+  "theme": {
+    "toDark": "Switch to dark theme",
+    "toLight": "Switch to light theme",
+    "generic": "Toggle colour theme"
+  },
+  "hero": {
+    "aria": "Introduction",
+    "title1": "Farming you can",
+    "title2": "see and understand.",
+    "copy": "An integrated commercial farming and agro-tourism project designed around real operations, structured participation and transparent project updates.",
+    "ctaInvest": "Explore Investment",
+    "ctaProgress": "See Project Progress",
+    "ctaVisit": "Book a Farm Visit",
+    "slideAlt": "Trishal Green Valley project site — photo {n}"
+  },
+  "slider": {
+    "region": "Project photos",
+    "slide": "{n} of {total}",
+    "show": "Show slide {n} of {total}",
+    "prev": "Previous slide",
+    "next": "Next slide",
+    "pauseLabel": "Pause slideshow",
+    "pause": "Pause",
+    "play": "Play",
+    "pauseTitle": "Pause slideshow",
+    "playTitle": "Play slideshow"
+  },
+  "stats": {
+    "aria": "Project at a glance",
+    "area": "Bigha project area",
+    "horizon": "Year operating horizon",
+    "categories": "Planned farm categories",
+    "monitoring": "Monitoring planned",
+    "live": "Live"
+  },
+  "intro": {
+    "eyebrow": "THE PROJECT",
+    "title1": "One valley.",
+    "title2": "Multiple farming operations.",
+    "lead": "Trishal Green Valley brings multiple agricultural activities into one integrated project—from livestock and fisheries to orchards and agro-tourism.",
+    "link": "Explore the ecosystem →"
+  },
+  "ecosystem": {
+    "aria": "Farm categories",
+    "masterplanAlt": "Aerial masterplan of Trishal Green Valley",
+    "categories": {
+      "cattle": "Cattle",
+      "dairy": "Dairy",
+      "fisheries": "Fisheries",
+      "poultry": "Poultry",
+      "goat": "Goat",
+      "rabbit": "Rabbit",
+      "peacock": "Peacock",
+      "orchard": "Fruit Orchard",
+      "fields": "Green Fields",
+      "agroTourism": "Agro-Tourism"
+    }
+  },
+  "opportunities": {
+    "eyebrow": "INVESTMENT",
+    "title": "Explore opportunities",
+    "intro": "Start with a category. Review the model, operating cycle, assumptions, risks and documents before making a decision.",
+    "viewAll": "View all opportunities",
+    "note": "Terms shown as “To verify” are not yet confirmed. Nothing here is an offer or a guarantee of returns.",
+    "tags": {
+      "category": "CATEGORY BASED",
+      "cycle": "PRODUCTION CYCLE",
+      "longTerm": "LONG-TERM",
+      "project": "PROJECT BASED"
+    },
+    "items": {
+      "cattle": {
+        "title": "Cattle Farming",
+        "text": "Review the operating model, cycle, assumptions, risks and supporting documents.",
+        "cycle": "Cycle: To verify",
+        "amount": "From: To verify"
+      },
+      "fisheries": {
+        "title": "Fisheries",
+        "text": "A structured view of pond operations, production cycle, cost assumptions and reporting.",
+        "cycle": "Cycle: To verify",
+        "amount": "From: To verify"
+      },
+      "dairy": {
+        "title": "Dairy",
+        "text": "Understand the operating model, expected reporting structure and material risks.",
+        "cycle": "Cycle: To verify",
+        "amount": "From: To verify"
+      },
+      "poultry": {
+        "title": "Poultry",
+        "text": "Planned category. Details will be published once the investment structure is approved.",
+        "cycle": "Cycle: To verify",
+        "amount": "From: To verify"
+      },
+      "goat": {
+        "title": "Goat Farming",
+        "text": "Planned category. Terms and verified operating assumptions will be added once approved.",
+        "cycle": "Cycle: To verify",
+        "amount": "From: To verify"
+      },
+      "agroTourism": {
+        "title": "Agro-Tourism",
+        "text": "Future opportunity. Not yet open; details will follow once the structure is formally approved.",
+        "cycle": "Status: Future",
+        "amount": "Terms: To verify"
+      }
+    }
+  },
+  "progress": {
+    "eyebrow": "PROJECT PROGRESS",
+    "title": "See the valley grow.",
+    "intro": "Dated updates from the project site, published once verified.",
+    "feature": {
+      "label": "LATEST UPDATE"
+    },
+    "video": {
+      "label": "Project progress video",
+      "play": "Play video with sound: {label}",
+      "error": "This video can't be played right now.",
+      "captions": "English",
+      "watch": "Watch on YouTube"
+    },
+    "barLabel": "Progress"
+  },
+  "transparency": {
+    "aria": "Transparency",
+    "eyebrow": "TRANSPARENCY",
+    "title": "Know what is happening.",
+    "intro": "Planned: after onboarding, investors will receive access to updates, reports and documents.",
+    "items": {
+      "monitoring": {
+        "title": "Farm Monitoring",
+        "text": "Planned: selected farm monitoring for onboarded investors."
+      },
+      "updates": {
+        "title": "Project Updates",
+        "text": "Planned: dated photo, video and operational progress updates."
+      },
+      "reporting": {
+        "title": "Financial Reporting",
+        "text": "Planned: investor-specific reports after onboarding."
+      },
+      "documents": {
+        "title": "Document Access",
+        "text": "Planned: relevant agreements and reports shared securely."
+      }
+    },
+    "portal": "Investor Portal"
+  },
+  "about": {
+    "eyebrow": "OPERATING MODEL",
+    "title1": "Clear roles.",
+    "title2": "Clear accountability.",
+    "roles": {
+      "fnf": {
+        "name": "FNF Corporation",
+        "role": "Role details will be published once confirmed."
+      },
+      "tiffin": {
+        "name": "Tiffin — Operating Partner",
+        "role": "Role details will be published once confirmed."
+      }
+    },
+    "notice": "Important: the land-use structure, operator roles, investment terms and material risks will be disclosed in full during due diligence. Nothing on this site implies land ownership or guaranteed returns."
+  },
+  "visit": {
+    "eyebrow": "PRIVATE FARM VISIT",
+    "title": "Visit before you decide.",
+    "intro": "See the project, meet the team and ask questions before proceeding to due diligence.",
+    "formLabel": "Request a farm visit",
+    "name": "Full name",
+    "namePlaceholder": "Full name *",
+    "phone": "Mobile number",
+    "phonePlaceholder": "Mobile number * (01XXXXXXXXX)",
+    "email": "Email (optional)",
+    "emailPlaceholder": "Email (optional)",
+    "interest": "Investment interest",
+    "interestPlaceholder": "Investment interest *",
+    "interests": {
+      "Cattle": "Cattle",
+      "Fisheries": "Fisheries",
+      "Dairy": "Dairy",
+      "Poultry": "Poultry",
+      "Other": "Other"
+    },
+    "date": "Preferred date",
+    "guests": "Number of guests",
+    "message": "Message / questions",
+    "counter": "{count}/{max}",
+    "submit": "Request Farm Visit",
+    "sending": "Sending…",
+    "success": "Thank you — your visit request has been received. Our team will contact you to confirm.",
+    "checkFields": "Please check the highlighted fields.",
+    "genericError": "Something went wrong. Please try again.",
+    "networkError": "Network error. Please check your connection and try again.",
+    "rateLimited": "Too many requests. Please try again in a few minutes.",
+    "sendFailed": "Sorry, we couldn't send your request right now. Please try again shortly or contact us directly.",
+    "invalid": "Invalid request.",
+    "privacy": "We use these details only to arrange your visit. See our <link>Privacy Policy</link>.",
+    "errors": {
+      "nameMin": "Please enter your full name.",
+      "nameMax": "Name is too long.",
+      "phone": "Please enter a valid Bangladesh mobile number, e.g. 01712345678.",
+      "email": "Please enter a valid email address.",
+      "emailMax": "Email address is too long.",
+      "interest": "Please choose an area of interest.",
+      "date": "Please choose a valid date.",
+      "guestsRequired": "Please enter the number of guests.",
+      "guestsInt": "Please enter a whole number.",
+      "guestsMin": "At least 1 guest.",
+      "guestsMax": "For groups larger than 50, please mention it in the message.",
+      "messageMax": "Message must be 1000 characters or fewer.",
+      "invalid": "Please check this field.",
+      "organizationMax": "Profession / company is too long."
+    },
+    "organization": "Profession / company",
+    "organizationPlaceholder": "Profession / company (optional)"
+  },
+  "cta": {
+    "eyebrow": "NEXT STEP",
+    "title1": "Understand first.",
+    "title2": "Then decide.",
+    "text": "Request project information, arrange a private visit and review relevant documents before making an investment decision.",
+    "book": "Book a Visit",
+    "portal": "Investor Login"
+  },
+  "footer": {
+    "contact": "CONTACT",
+    "legal": "LEGAL",
+    "legalNav": "Legal",
+    "address": "Trishal, Mymensingh, Bangladesh",
+    "requestVisit": "Request a farm visit",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Use",
+    "risk": "Risk Disclosure"
+  },
+  "legal": {
+    "eyebrow": "LEGAL",
+    "draft": "DRAFT - pending legal review",
+    "lastUpdated": "Last updated: {date}",
+    "englishOnly": "",
+    "titles": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Use",
+      "risk": "Risk Disclosure"
+    },
+    "descriptions": {
+      "privacy": "How Trishal Green Valley collects and uses personal information.",
+      "terms": "Terms for using the Trishal Green Valley website.",
+      "risk": "Key risks of participating in farming projects such as Trishal Green Valley."
+    },
+    "metaTitles": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Use",
+      "risk": "Risk Disclosure"
+    }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "The page you were looking for doesn't exist.",
+    "home": "Back to the home page"
+  },
+  "live": {
+    "eyebrow": "LIVE FARM",
+    "title": "See the farm.",
+    "intro": "Watch the farm in action. Live CCTV access is available to verified investors after onboarding.",
+    "videoTitle": "Trishal Green Valley farm video",
+    "noVideo": "Farm video coming soon.",
+    "lockEyebrow": "LIVE CCTV",
+    "lockTitle": "Investor access only",
+    "lockText": "Real-time camera feeds from the farm are private. Sign in with the account created during your onboarding.",
+    "signIn": "Sign in to watch live"
+  }
+}

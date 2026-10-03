@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 export type VisitRequest = {
   id: string; full_name: string; mobile: string; email: string | null; interest: string | null;
   visit_date: string | null; guests: number | null; message: string | null;
+  organization: string | null; locale: string | null;
   status: "new" | "contacted" | "scheduled" | "done" | "cancelled"; created_at: string;
 };
 

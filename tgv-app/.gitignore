@@ -5,3 +5,7 @@ node_modules
 *.tsbuildinfo
 next-env.d.ts
 backups/
+.env
+.env*.local
+.env.production
+test-results/

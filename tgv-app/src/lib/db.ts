@@ -17,7 +17,7 @@ const COLS: Record<Table, Record<string, "text" | "int" | "bool">> = {
   investments: { id: "text", created_at: "text", user_id: "text", category: "text", amount_bdt: "int", distributions_bdt: "int", stage: "text", next_review: "text", status: "text" },
   project_updates: { id: "text", created_at: "text", title: "text", body: "text", progress_pct: "int", published: "bool" },
   tickets: { id: "text", created_at: "text", user_id: "text", category: "text", subject: "text", message: "text", status: "text", reply: "text" },
-  visit_requests: { id: "text", created_at: "text", full_name: "text", mobile: "text", email: "text", interest: "text", visit_date: "text", guests: "int", message: "text", status: "text" },
+  visit_requests: { id: "text", created_at: "text", full_name: "text", mobile: "text", email: "text", interest: "text", visit_date: "text", guests: "int", message: "text", status: "text", organization: "text", locale: "text" },
   documents: { id: "text", created_at: "text", title: "text", kind: "text", user_id: "text", file_name: "text", stored_name: "text", mime: "text", size: "int", uploaded_by: "text" },
   audit_log: { id: "text", created_at: "text", user_id: "text", action: "text", target: "text" },
   cameras: { id: "text", created_at: "text", name: "text", description: "text", upstream_url: "text", active: "bool", sort_order: "int" },
@@ -50,6 +50,7 @@ CREATE INDEX IF NOT EXISTS tickets_user_idx ON tickets(user_id);
 CREATE TABLE IF NOT EXISTS visit_requests (
   id TEXT PRIMARY KEY, created_at TEXT NOT NULL, full_name TEXT NOT NULL, mobile TEXT NOT NULL, email TEXT,
   interest TEXT, visit_date TEXT, guests INTEGER CHECK (guests BETWEEN 1 AND 50), message TEXT,
+  organization TEXT, locale TEXT,
   status TEXT NOT NULL DEFAULT 'new' CHECK (status IN ('new','contacted','scheduled','done','cancelled')));
 CREATE TABLE IF NOT EXISTS documents (
   id TEXT PRIMARY KEY, created_at TEXT NOT NULL, title TEXT NOT NULL,
@@ -74,6 +75,9 @@ function conn() {
     d.pragma("journal_mode = WAL");
     d.pragma("foreign_keys = ON");
     d.exec(DDL);
+    // Migration: databases created before the new website lack these visit_requests columns.
+    const have = new Set((d.prepare("PRAGMA table_info(visit_requests)").all() as { name: string }[]).map((c) => c.name));
+    for (const col of ["organization", "locale"]) if (!have.has(col)) d.exec(`ALTER TABLE visit_requests ADD COLUMN ${col} TEXT`);
     g.__tgvdb = d;
   }
   return g.__tgvdb;
