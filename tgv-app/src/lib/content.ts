@@ -45,7 +45,15 @@ export async function getPublishedUpdates(limit = 4): Promise<ProgressUpdate[]> 
 
 /** Hero slides whose image actually exists, with content-versioned URLs (see versioned()). */
 export async function getAvailableHeroSlides(): Promise<HeroSlide[]> {
-  return (await getHeroSlides()).filter((s) => mediaExists(s.src)).map((s) => ({ ...s, src: versioned(s.src) }));
+  return (await getHeroSlides())
+    .filter((s) => mediaExists(s.src))
+    .map((s) => ({
+      ...s,
+      src: versioned(s.src),
+      // Small-screen poster versions are optional: drop any whose file is missing (falls back to src).
+      tabletSrc: mediaExists(s.tabletSrc) ? versioned(s.tabletSrc) : undefined,
+      mobileSrc: mediaExists(s.mobileSrc) ? versioned(s.mobileSrc) : undefined,
+    }));
 }
 
 /** The progress video, resolved for rendering (valid YouTube ID or existing file), else null. */

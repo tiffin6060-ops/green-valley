@@ -40,12 +40,30 @@ export const banner: Banner = {
  * Slides whose local file is missing are skipped at build time; with none, the hero shows
  * the green gradient. `objectPosition` (CSS, e.g. "50% 30%") controls the crop focus.
  * `alt` is optional; without it the generic "hero.slideAlt" message is used.
+ * `bare: true` marks a poster (artwork with its own text): shown whole, never cropped, and on phones
+ * the hotline/WhatsApp buttons appear above the hero buttons.
+ * `tabletSrc` (1600×1250, shown 601–1023px) and `mobileSrc` (1080×1350, shown ≤600px) are optional
+ * small-screen versions of a poster. Keep their bottom ~15% (tablet) / ~30% (phone) as plain
+ * background: the hero buttons and contact buttons sit there. Missing files fall back to `src`.
  * TODO(client): add a short real description (en + bn) for each photo. */
-export type HeroSlide = { src: string; alt?: Localized; objectPosition?: string; bare?: boolean };
+export type HeroSlide = {
+  src: string;
+  alt?: Localized;
+  objectPosition?: string;
+  bare?: boolean;
+  tabletSrc?: string;
+  mobileSrc?: string;
+};
 
 export const heroSlides: HeroSlide[] = [
   {
     src: "/hero/banner.jpg",
+    bare: true,
+    // Desktop crops the 2:1 poster to fill the hero: keep the top (title) and the hotline bar in view.
+    objectPosition: "50% 15%",
+    // TODO(client): interim versions assembled from banner.jpg; replace with designer artwork.
+    tabletSrc: "/hero/banner-tablet.jpg",
+    mobileSrc: "/hero/banner-mobile.jpg",
     alt: {
       en: "Trishal Green Valley Agro Farm — Farm Builder investment plans",
       bn: "ত্রিশাল গ্রীন ভ্যালি এগ্রো ফার্ম — ফার্ম বিল্ডার ইনভেস্টমেন্ট প্ল্যান",
@@ -153,6 +171,9 @@ export const interestOptions = ["Cattle", "Fisheries", "Dairy", "Poultry", "Othe
 export const contact = {
   phone: "", // TODO(client) e.g. "+880 1XXX-XXXXXX"
   email: "", // TODO(client) e.g. "info@trishalgreenvalley.com"
+  /** Shown as tap-to-call / tap-to-chat buttons on the poster slide on phones. Empty = hidden. */
+  hotline: "09647606070",
+  whatsapp: "+8801321441133",
 };
 
 /* ------------------------------------------------------------------ */

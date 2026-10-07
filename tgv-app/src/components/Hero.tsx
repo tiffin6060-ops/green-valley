@@ -3,72 +3,69 @@ import { getLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import { getAvailableHeroSlides, hasProgressSection } from "@/lib/content";
 
-// Fixed min-height (no layout shift); the gradient is the fallback when no slide images exist.
-// Mobile bottom padding grows from the template 70px to 90px only to make room for slider controls.
-const sectionCls = (controls: boolean) =>
-  `relative flex min-h-[600px] items-end overflow-hidden bg-[linear-gradient(120deg,#183b2c,#6f8063)] px-[6vw] pt-[70px] ${
-    controls ? "pb-[90px]" : "pb-[70px]"
-  } text-white min-[901px]:min-h-[690px] min-[901px]:px-[8vw] min-[901px]:pt-[8vw] min-[901px]:pb-[7vw]`;
+/*
+ * Image-first hero: every slide is shown bright and uncovered, with only the glass button bar
+ * (bottom-left) and the slider controls on top.
+ * - Phones (≤600px): 4:5 frame, button bar full width at the bottom, controls top-right.
+ * - Tablets (601–1023px): 41:32 frame (matches the 1600×1250 tablet poster), controls top-right.
+ * - Desktop (≥1024px): height = 33.34vw + 96px (min 480px); every slide, the poster included,
+ *   fills it edge to edge (object-cover), with the button bar and controls along the bottom.
+ * Fixed proportions per breakpoint, so changing slides never shifts the page.
+ * The gradient is the fallback when no slide images exist.
+ */
+const sectionCls =
+  "relative flex aspect-[4/5] items-end overflow-hidden bg-[linear-gradient(120deg,#183b2c,#6f8063)] px-4 pb-4 text-white " +
+  "min-[601px]:aspect-[41/32] min-[601px]:px-[4vw] min-[601px]:pb-[4vw] " +
+  "min-[1024px]:aspect-auto min-[1024px]:h-[max(480px,calc(33.34vw+96px))] min-[1024px]:px-[5vw] min-[1024px]:pb-[13px]";
+
+const barCls =
+  "flex w-full gap-2 rounded-xl border border-white/20 bg-[rgba(9,32,22,.55)] p-2 backdrop-blur-md backdrop-saturate-[1.2] " +
+  "min-[601px]:w-auto min-[601px]:gap-3 min-[601px]:rounded-lg min-[601px]:p-3";
+
+// Phones: two equal buttons sharing the bar's width; text may wrap to two lines (e.g. Bangla).
+const btnCls = "flex-1 px-3 py-3 text-center leading-tight min-[601px]:flex-none min-[601px]:px-[22px] min-[601px]:py-[15px]";
 
 export default async function Hero() {
-  const [slides, hasProgress, t, tc, locale] = await Promise.all([
+  const [slides, hasProgress, t, locale] = await Promise.all([
     getAvailableHeroSlides(),
     hasProgressSection(),
     getTranslations("hero"),
-    getTranslations("common"),
     getLocale() as Promise<Locale>,
   ]);
   // Resolve per-locale alt text (fallback: generic "photo n") before passing to the client slider.
   const resolved = slides.map((s, i) => ({ ...s, alt: s.alt?.[locale] || t("slideAlt", { n: i + 1 }) }));
 
-  // Dark overlay keeps the copy readable over the photos
-  const overlay = (
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_78%_30%,rgba(255,255,255,.13),transparent_25%),linear-gradient(100deg,rgba(0,0,0,.6),rgba(0,0,0,.15))]"
-    />
-  );
-
   const content = (
-    <div className="relative z-[2] max-w-[850px]">
-      <p className="eyebrow eyebrow-light uppercase">{tc("location")}</p>
-      <h1 className="display mb-[26px] text-[46px] min-[601px]:text-[clamp(42px,6vw,82px)]">
-        {t("title1")}
-        <br />
-        <em className="font-semibold text-[#d7e5d2]">{t("title2")}</em>
+    <div className={barCls}>
+      {/* The page's main heading: not shown (the images speak), but read by Google and screen readers. */}
+      <h1 className="sr-only">
+        {t("title1")} {t("title2")}
       </h1>
-      <p className="max-w-[650px] text-lg leading-[1.7] text-[#e9eee8]">
-        {t("copy")}
-      </p>
-      <div className="mt-[30px] flex flex-col items-stretch gap-3 min-[601px]:flex-row min-[601px]:items-center">
-        <a className="btn btn-primary" href="#investment">
-          {t("ctaInvest")}
+      <a className={`btn btn-primary ${btnCls}`} href="#investment">
+        {t("ctaInvest")}
+      </a>
+      {hasProgress ? (
+        <a className={`btn btn-ghost ${btnCls}`} href="#progress">
+          {t("ctaProgress")}
         </a>
-        {hasProgress ? (
-          <a className="btn btn-ghost" href="#progress">
-            {t("ctaProgress")}
-          </a>
-        ) : (
-          <a className="btn btn-ghost" href="#visit">
-            {t("ctaVisit")}
-          </a>
-        )}
-      </div>
-      <p className="mt-[25px] text-[11px] text-[#d6ddd4]">{tc("disclaimer")}</p>
+      ) : (
+        <a className={`btn btn-ghost ${btnCls}`} href="#visit">
+          {t("ctaVisit")}
+        </a>
+      )}
     </div>
   );
 
   if (slides.length === 0) {
     return (
-      <section aria-label={t("aria")} className={sectionCls(false)}>
-        {overlay}
-        {content}
+      <section aria-label={t("aria")} className={sectionCls}>
+        <div className="relative z-[2] w-full min-[601px]:w-auto">{content}</div>
       </section>
     );
   }
 
   return (
-    <HeroSlider slides={resolved} label={t("aria")} className={sectionCls(slides.length > 1)} overlay={overlay}>
+    <HeroSlider slides={resolved} label={t("aria")} className={sectionCls}>
       {content}
     </HeroSlider>
   );

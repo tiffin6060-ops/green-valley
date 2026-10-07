@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "tgv-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "tgv-app", "run", "dev"],
+      "port": 3000,
+      "env": { "SWC_NATIVE_BINDING_CACHE": "C:\\Users\\OVAL\\Desktop\\green-valley\\tgv-app\\.next\\swc-cache" }
+    }
+  ]
+}

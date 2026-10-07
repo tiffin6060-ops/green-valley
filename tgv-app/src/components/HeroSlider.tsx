@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import {
   useEffect,
   useReducer,
@@ -18,6 +18,7 @@ import type { HeroSlide } from "@/data/content";
 import type { Locale } from "@/i18n/routing";
 import { formatNumber } from "@/lib/format";
 import { canOptimize } from "@/lib/mediaUrl";
+import HeroContacts from "./HeroContacts";
 
 /** A slide with its alt text already resolved for the current locale. */
 export type ResolvedSlide = Omit<HeroSlide, "alt"> & { alt: string };
@@ -46,7 +47,60 @@ function slideReducer(state: SlideState, action: { to: number; n: number }): Sli
   return { index, seen: state.seen.includes(index) ? state.seen : [...state.seen, index] };
 }
 
+/**
+ * A poster (`bare`) slide: the wide artwork on desktop, and the tablet/phone versions on smaller
+ * screens via <picture>, so each device downloads only its own file. On desktop the wide artwork
+ * fills the hero edge to edge like the photos (object-cover; `objectPosition` keeps its text in
+ * view); the small-screen versions are made to fit their frame. A missing small-screen version
+ * falls back to the wide artwork shown whole (object-contain) over a blurred copy of itself.
+ */
+function PosterImage({ slide, first }: { slide: ResolvedSlide; first: boolean }) {
+  const base = { alt: slide.alt, sizes: "100vw", quality: 75, priority: first };
+  const pick = (src: string, width: number, height: number) =>
+    getImageProps({ ...base, src, width, height, unoptimized: !canOptimize(src) }).props;
+
+  const wide = pick(slide.src, 1600, 804);
+  const tablet = slide.tabletSrc ? pick(slide.tabletSrc, 1600, 1250) : null;
+  const mobile = slide.mobileSrc ? pick(slide.mobileSrc, 1080, 1350) : null;
+  // The <img> itself carries the smallest version that exists; <source>s cover larger screens.
+  const img = mobile ?? tablet ?? wide;
+
+  // Fit per breakpoint: cover where a made-to-fit version exists, contain (show whole) otherwise.
+  const fit = `${mobile ? "object-cover" : "object-contain"} ${
+    tablet ? "min-[601px]:object-cover" : "min-[601px]:object-contain"
+  } min-[1024px]:object-cover`;
+  // The blurred backdrop is only needed (and only downloaded) where the artwork is contained.
+  const backdrop = `${mobile ? "hidden" : "block"} ${tablet ? "min-[601px]:hidden" : "min-[601px]:block"} min-[1024px]:hidden`;
+
+  return (
+    <>
+      <Image
+        src={slide.src}
+        alt=""
+        aria-hidden="true"
+        fill
+        sizes="10vw"
+        quality={40}
+        loading="lazy"
+        unoptimized={!canOptimize(slide.src)}
+        className={`${backdrop} scale-110 object-cover blur-2xl brightness-90`}
+      />
+      <picture>
+        <source media="(min-width: 1024px)" srcSet={wide.srcSet ?? wide.src} sizes="100vw" />
+        {tablet && <source media="(min-width: 601px)" srcSet={tablet.srcSet ?? tablet.src} sizes="100vw" />}
+        <img
+          {...img}
+          alt={slide.alt}
+          className={`absolute inset-0 size-full ${fit}`}
+          style={{ ...img.style, objectPosition: slide.objectPosition }}
+        />
+      </picture>
+    </>
+  );
+}
+
 function SlideImage({ slide, first }: { slide: ResolvedSlide; first: boolean }) {
+  if (slide.bare) return <PosterImage slide={slide} first={first} />;
   return (
     <Image
       src={slide.src}
@@ -71,9 +125,9 @@ type Props = {
   label: string;
   /** Classes for the hero <section> (layout + fallback gradient). */
   className: string;
-  /** Dark gradient overlay, rendered above the images. */
-  overlay: ReactNode;
-  /** Hero text and CTAs. */
+  /** Optional overlay rendered above photo slides (never above posters). */
+  overlay?: ReactNode;
+  /** Hero buttons (the button bar), shown on every slide. */
   children: ReactNode;
 };
 
@@ -89,7 +143,9 @@ type Props = {
  *   slider never looks "stuck". Pressing Play overrides the holds until the pointer/focus
  *   leaves and comes back.
  * - Also pauses when the tab is hidden or the hero is scrolled off-screen.
- * - A slide with `bare: true` (e.g. the banner) is shown whole, with no overlay and no headline.
+ * - A slide with `bare: true` (the investor poster) is shown whole, with no overlay; on phones the
+ *   hotline/WhatsApp buttons appear above the hero buttons while it is showing.
+ * - Hidden slides are `inert`, so links inside them can't be focused.
  */
 export default function HeroSlider({ slides, label, className, overlay, children }: Props) {
   const n = slides.length;
@@ -137,8 +193,11 @@ export default function HeroSlider({ slides, label, className, overlay, children
         <div className="absolute inset-0">
           <SlideImage slide={slides[0]} first />
         </div>
-        {overlay}
-        {children}
+        {!slides[0].bare && overlay}
+        <div className="relative z-[2] w-full min-[601px]:w-auto">
+          {slides[0].bare && <HeroContacts className="mb-2 min-[601px]:hidden" />}
+          {children}
+        </div>
       </section>
     );
   }
@@ -235,6 +294,7 @@ export default function HeroSlider({ slides, label, className, overlay, children
               aria-roledescription="slide"
               aria-label={t("slide", { n: num(i + 1), total: num(n) })}
               aria-hidden={i !== index}
+              inert={i !== index}
               className={`absolute inset-0 ${s.bare ? "bg-[#eaf3e4]" : ""} ${
                 reducedMotion ? "" : "transition-opacity duration-700 ease-in-out"
               } ${i === index ? "opacity-100" : "opacity-0"}`}
@@ -247,13 +307,13 @@ export default function HeroSlider({ slides, label, className, overlay, children
         {!bareNow && overlay}
 
         <div
-          className="absolute right-[6vw] bottom-6 z-[3] flex items-center gap-2 min-[901px]:right-[8vw]"
+          className="absolute top-3 right-3 z-[3] flex items-center gap-2 min-[601px]:top-[3vw] min-[601px]:right-[3vw] min-[1024px]:top-auto min-[1024px]:right-[5vw] min-[1024px]:bottom-[29px]"
           onPointerEnter={holdOn}
           onPointerLeave={holdOff}
         >
           <button
             type="button"
-            className={`${ctrl} gap-1.5 text-xs font-bold tracking-[0.5px] min-[601px]:flex min-[601px]:px-3`}
+            className={`${ctrl} gap-1.5 text-xs font-bold tracking-[0.5px] max-[600px]:h-7 max-[600px]:min-w-7 max-[600px]:px-1 min-[601px]:flex min-[601px]:px-3`}
             onClick={togglePlay}
             aria-label={t("pauseLabel")}
             aria-pressed={paused}
@@ -266,10 +326,19 @@ export default function HeroSlider({ slides, label, className, overlay, children
               {paused ? t("play") : t("pause")}
             </span>
           </button>
-          <button type="button" className={ctrl} onClick={() => go(index - 1)} aria-label={t("prev")}>
+          <button type="button" className={`${ctrl} max-[1023px]:hidden`} onClick={() => go(index - 1)} aria-label={t("prev")}>
             <span aria-hidden="true">‹</span>
           </button>
-          <div className="flex items-center">
+          {/* Phones: a small position indicator (swipe to change slides) keeps the poster artwork clear. */}
+          <div aria-hidden="true" className="flex items-center gap-1 rounded-full bg-black/35 px-2 py-2 min-[601px]:hidden">
+            {slides.map((s, i) => (
+              <span
+                key={s.src}
+                className={`block h-1.5 rounded-full transition-all ${i === index ? "w-4 bg-white" : "w-1.5 bg-white/60"}`}
+              />
+            ))}
+          </div>
+          <div className="flex items-center max-[600px]:hidden">
             {slides.map((s, i) => (
               <button
                 key={s.src}
@@ -288,18 +357,19 @@ export default function HeroSlider({ slides, label, className, overlay, children
               </button>
             ))}
           </div>
-          <button type="button" className={ctrl} onClick={() => go(index + 1)} aria-label={t("next")}>
+          <button type="button" className={`${ctrl} max-[1023px]:hidden`} onClick={() => go(index + 1)} aria-label={t("next")}>
             <span aria-hidden="true">›</span>
           </button>
         </div>
       </div>
 
-      {/* Hovering a CTA pauses (the visitor is about to act); the headline and bare photo do not. */}
+      {/* Hovering a button pauses (the visitor is about to act); the photo itself does not. */}
       <div
-        className={`relative z-[2] ${bareNow ? "invisible" : ""}`}
+        className="relative z-[2] w-full min-[601px]:w-auto"
         onPointerOver={holdOnInteractive}
         onPointerLeave={holdOff}
       >
+        {bareNow && <HeroContacts className="mb-2 min-[601px]:hidden" />}
         {children}
       </div>
     </section>
