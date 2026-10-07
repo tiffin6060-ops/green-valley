@@ -2,6 +2,8 @@
 
 /* Dark mode follows the .dark class set by next-themes (not the OS media query directly). */
 @custom-variant dark (&:where(.dark, .dark *));
+/* Wide screens (by shape, not width): the hero shows the wide poster, edge to edge. Keep in sync with POSTER_COVER_MQ (HeroSlider). */
+@custom-variant poster-wide (@media (min-aspect-ratio: 8/5));
 
 /* Fixed brand palette (template/styles.css). Same in both themes. */
 @theme {

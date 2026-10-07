@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type CSSProperties,
   type FocusEvent,
   type KeyboardEvent,
   type PointerEvent,
@@ -18,7 +19,6 @@ import type { HeroSlide } from "@/data/content";
 import type { Locale } from "@/i18n/routing";
 import { formatNumber } from "@/lib/format";
 import { canOptimize } from "@/lib/mediaUrl";
-import HeroContacts from "./HeroContacts";
 
 /** A slide with its alt text already resolved for the current locale. */
 export type ResolvedSlide = Omit<HeroSlide, "alt"> & { alt: string };
@@ -47,33 +47,46 @@ function slideReducer(state: SlideState, action: { to: number; n: number }): Sli
   return { index, seen: state.seen.includes(index) ? state.seen : [...state.seen, index] };
 }
 
+// Poster versions are picked by the shape of the space they get, not by screen width: each screen
+// downloads the version (~9:16, ~4:3 or ~2:1) that fills that space best.
+// Wide enough screens show the wide poster edge to edge. Keep in sync with the poster-wide variant (globals.css).
+const POSTER_COVER_MQ = "(min-aspect-ratio: 8/5)";
 /**
- * A poster (`bare`) slide: the wide artwork on desktop, and the tablet/phone versions on smaller
- * screens via <picture>, so each device downloads only its own file. On desktop the wide artwork
- * fills the hero edge to edge like the photos (object-cover; `objectPosition` keeps its text in
- * view); the small-screen versions are made to fit their frame. A missing small-screen version
- * falls back to the wide artwork shown whole (object-contain) over a blurred copy of itself.
+ * Matches when the space above the button strip (viewport minus the 82px header and ~110px strip)
+ * is at least `ratio` wide. Media queries can't subtract, so heights are taken in 50px bands.
+ */
+const spaceAtLeast = (ratio: number) =>
+  Array.from({ length: 36 }, (_, i) => 400 + i * 50)
+    .map((h) => `(max-height: ${h}px) and (min-width: ${Math.ceil(ratio * (h - 192))}px)`)
+    .join(", ");
+// Thresholds sit halfway (geometrically) between the versions' shapes: √(2 × 4/3), √(4/3 × 9/16).
+const POSTER_WIDE_MQ = `${POSTER_COVER_MQ}, ${spaceAtLeast(1.63)}`;
+const POSTER_TABLET_MQ = spaceAtLeast(0.87);
+
+/**
+ * A poster (`bare`) slide: artwork full of text (prices, phone numbers), so none of it may be
+ * cropped or covered. Via <picture>, each screen downloads only its own version.
+ * - Wide screens: the wide poster fills the hero edge to edge (object-cover; the crop takes 1 part
+ *   from its empty sky for every 3 from the bottom).
+ *   Its bottom third is plain foliage, which is where the button bar sits.
+ * - Other shapes: the poster is shown whole (object-contain) in the space *above* the button bar
+ *   (`--hero-strip`, measured by HeroSlider), over a blurred copy of itself.
  */
 function PosterImage({ slide, first }: { slide: ResolvedSlide; first: boolean }) {
   const base = { alt: slide.alt, sizes: "100vw", quality: 75, priority: first };
   const pick = (src: string, width: number, height: number) =>
     getImageProps({ ...base, src, width, height, unoptimized: !canOptimize(src) }).props;
 
-  const wide = pick(slide.src, 1600, 804);
-  const tablet = slide.tabletSrc ? pick(slide.tabletSrc, 1600, 1250) : null;
-  const mobile = slide.mobileSrc ? pick(slide.mobileSrc, 1080, 1350) : null;
-  // The <img> itself carries the smallest version that exists; <source>s cover larger screens.
+  // Nominal sizes (the artwork's shape); the layout never depends on them.
+  const wide = pick(slide.src, 1768, 890);
+  const tablet = slide.tabletSrc ? pick(slide.tabletSrc, 1448, 1086) : null;
+  const mobile = slide.mobileSrc ? pick(slide.mobileSrc, 941, 1672) : null;
+  // The <img> itself carries the tallest version that exists; <source>s cover wider shapes.
   const img = mobile ?? tablet ?? wide;
-
-  // Fit per breakpoint: cover where a made-to-fit version exists, contain (show whole) otherwise.
-  const fit = `${mobile ? "object-cover" : "object-contain"} ${
-    tablet ? "min-[601px]:object-cover" : "min-[601px]:object-contain"
-  } min-[1024px]:object-cover`;
-  // The blurred backdrop is only needed (and only downloaded) where the artwork is contained.
-  const backdrop = `${mobile ? "hidden" : "block"} ${tablet ? "min-[601px]:hidden" : "min-[601px]:block"} min-[1024px]:hidden`;
 
   return (
     <>
+      {/* Only needed (and only downloaded) where the artwork is contained. */}
       <Image
         src={slide.src}
         alt=""
@@ -83,18 +96,19 @@ function PosterImage({ slide, first }: { slide: ResolvedSlide; first: boolean })
         quality={40}
         loading="lazy"
         unoptimized={!canOptimize(slide.src)}
-        className={`${backdrop} scale-110 object-cover blur-2xl brightness-90`}
+        className="scale-110 object-cover blur-2xl brightness-90 poster-wide:hidden"
       />
-      <picture>
-        <source media="(min-width: 1024px)" srcSet={wide.srcSet ?? wide.src} sizes="100vw" />
-        {tablet && <source media="(min-width: 601px)" srcSet={tablet.srcSet ?? tablet.src} sizes="100vw" />}
-        <img
-          {...img}
-          alt={slide.alt}
-          className={`absolute inset-0 size-full ${fit}`}
-          style={{ ...img.style, objectPosition: slide.objectPosition }}
-        />
-      </picture>
+      <div className="absolute inset-x-0 top-0 bottom-[var(--hero-strip,140px)] poster-wide:bottom-0">
+        <picture>
+          <source media={POSTER_WIDE_MQ} srcSet={wide.srcSet ?? wide.src} sizes="100vw" />
+          {tablet && <source media={POSTER_TABLET_MQ} srcSet={tablet.srcSet ?? tablet.src} sizes="100vw" />}
+          <img
+            {...img}
+            alt={slide.alt}
+            className="absolute inset-0 size-full object-contain poster-wide:object-cover poster-wide:object-[50%_25%]"
+          />
+        </picture>
+      </div>
     </>
   );
 }
@@ -143,8 +157,8 @@ type Props = {
  *   slider never looks "stuck". Pressing Play overrides the holds until the pointer/focus
  *   leaves and comes back.
  * - Also pauses when the tab is hidden or the hero is scrolled off-screen.
- * - A slide with `bare: true` (the investor poster) is shown whole, with no overlay; on phones the
- *   hotline/WhatsApp buttons appear above the hero buttons while it is showing.
+ * - A slide with `bare: true` (the investor poster) gets no overlay and is never covered by the
+ *   buttons (see PosterImage).
  * - Hidden slides are `inert`, so links inside them can't be focused.
  */
 export default function HeroSlider({ slides, label, className, overlay, children }: Props) {
@@ -154,6 +168,9 @@ export default function HeroSlider({ slides, label, className, overlay, children
   const num = (v: number) => formatNumber(v, locale);
   const sectionRef = useRef<HTMLElement>(null);
   const touch = useRef<{ x: number; y: number } | null>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  /** Height of the button-bar area at the bottom of the hero (posters are fitted above it). */
+  const [strip, setStrip] = useState<number | null>(null);
 
   const [{ index, seen }, dispatch] = useReducer(slideReducer, { index: 0, seen: [0] });
   const [hoverHold, setHoverHold] = useState(false);
@@ -178,6 +195,20 @@ export default function HeroSlider({ slides, label, className, overlay, children
     return () => io.disconnect();
   }, [n]);
 
+  useEffect(() => {
+    const section = sectionRef.current;
+    const bar = barRef.current;
+    if (!section || !bar) return;
+    const measure = () =>
+      setStrip(Math.ceil(section.getBoundingClientRect().bottom - bar.getBoundingClientRect().top) + 8);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(section);
+    ro.observe(bar);
+    return () => ro.disconnect();
+  }, [n]);
+  const stripStyle = strip === null ? undefined : ({ "--hero-strip": `${strip}px` } as CSSProperties);
+
   // Re-armed on every index change, so manual navigation restarts the 6s timer.
   useEffect(() => {
     if (!rotating) return;
@@ -189,13 +220,12 @@ export default function HeroSlider({ slides, label, className, overlay, children
 
   if (n === 1) {
     return (
-      <section ref={sectionRef} aria-label={label} className={className}>
+      <section ref={sectionRef} aria-label={label} className={className} style={stripStyle}>
         <div className="absolute inset-0">
           <SlideImage slide={slides[0]} first />
         </div>
         {!slides[0].bare && overlay}
-        <div className="relative z-[2] w-full min-[601px]:w-auto">
-          {slides[0].bare && <HeroContacts className="mb-2 min-[601px]:hidden" />}
+        <div ref={barRef} className="relative z-[2] w-full min-[601px]:w-auto">
           {children}
         </div>
       </section>
@@ -274,6 +304,7 @@ export default function HeroSlider({ slides, label, className, overlay, children
       // pan-y: keep native vertical scrolling, let the carousel own horizontal swipes
       // (also stops browsers treating a swipe as history back/forward).
       className={`${className} touch-pan-y`}
+      style={stripStyle}
       onFocus={onFocus}
       onBlur={onBlur}
       onTouchStart={onTouchStart}
@@ -307,7 +338,7 @@ export default function HeroSlider({ slides, label, className, overlay, children
         {!bareNow && overlay}
 
         <div
-          className="absolute top-3 right-3 z-[3] flex items-center gap-2 min-[601px]:top-[3vw] min-[601px]:right-[3vw] min-[1024px]:top-auto min-[1024px]:right-[5vw] min-[1024px]:bottom-[29px]"
+          className="absolute top-3 right-3 z-[3] flex items-center gap-2 min-[768px]:top-auto min-[768px]:right-[4vw] min-[768px]:bottom-[41px] min-[1024px]:right-[5vw]"
           onPointerEnter={holdOn}
           onPointerLeave={holdOff}
         >
@@ -365,11 +396,11 @@ export default function HeroSlider({ slides, label, className, overlay, children
 
       {/* Hovering a button pauses (the visitor is about to act); the photo itself does not. */}
       <div
+        ref={barRef}
         className="relative z-[2] w-full min-[601px]:w-auto"
         onPointerOver={holdOnInteractive}
         onPointerLeave={holdOff}
       >
-        {bareNow && <HeroContacts className="mb-2 min-[601px]:hidden" />}
         {children}
       </div>
     </section>

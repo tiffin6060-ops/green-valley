@@ -6,17 +6,16 @@ import { getAvailableHeroSlides, hasProgressSection } from "@/lib/content";
 /*
  * Image-first hero: every slide is shown bright and uncovered, with only the glass button bar
  * (bottom-left) and the slider controls on top.
- * - Phones (≤600px): 4:5 frame, button bar full width at the bottom, controls top-right.
- * - Tablets (601–1023px): 41:32 frame (matches the 1600×1250 tablet poster), controls top-right.
- * - Desktop (≥1024px): height = 33.34vw + 96px (min 480px); every slide, the poster included,
- *   fills it edge to edge (object-cover), with the button bar and controls along the bottom.
- * Fixed proportions per breakpoint, so changing slides never shifts the page.
- * The gradient is the fallback when no slide images exist.
+ * The hero fills the screen below the 82px sticky header, on every device (the height never
+ * depends on the slide, so changing slides never shifts the page).
+ * - Phones (≤600px): button bar full width at the bottom, slider controls top-right (also up to 767px).
+ * - Wider (≥601px): button bar bottom-left; from 768px the slider controls sit bottom-right.
+ * Photos fill the hero (object-cover); posters are fitted so their text is never covered (see
+ * HeroSlider's PosterImage). The gradient is the fallback when no slide images exist.
  */
 const sectionCls =
-  "relative flex aspect-[4/5] items-end overflow-hidden bg-[linear-gradient(120deg,#183b2c,#6f8063)] px-4 pb-4 text-white " +
-  "min-[601px]:aspect-[41/32] min-[601px]:px-[4vw] min-[601px]:pb-[4vw] " +
-  "min-[1024px]:aspect-auto min-[1024px]:h-[max(480px,calc(33.34vw+96px))] min-[1024px]:px-[5vw] min-[1024px]:pb-[13px]";
+  "relative flex h-[calc(100svh-82px)] min-h-[420px] items-end overflow-hidden bg-[linear-gradient(120deg,#183b2c,#6f8063)] px-4 pb-4 text-white " +
+  "min-[601px]:px-[4vw] min-[601px]:pb-6 min-[1024px]:px-[5vw]";
 
 const barCls =
   "flex w-full gap-2 rounded-xl border border-white/20 bg-[rgba(9,32,22,.55)] p-2 backdrop-blur-md backdrop-saturate-[1.2] " +
