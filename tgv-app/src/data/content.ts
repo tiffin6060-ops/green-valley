@@ -165,13 +165,13 @@ export const interestOptions = ["Cattle", "Fisheries", "Dairy", "Poultry", "Othe
 /* Contact — TODO(client): supply real details. Empty strings are hidden.
  * The postal address is localized: messages "footer.address". */
 export const contact = {
-  phone: "", // TODO(client) e.g. "+880 1XXX-XXXXXX"
-  email: "", // TODO(client) e.g. "info@trishalgreenvalley.com"
+  phone: "+880 9647-606070",
+  email: "trishalgreenvalley@gmail.com",
 };
 
 /* ------------------------------------------------------------------ */
 /* Legal pages — English drafts pending legal review (not translated; /bn shows a notice). */
-export const legalLastUpdated = "1 October 2026";
+export const legalLastUpdated = "16 October 2026";
 
 export const legalTodos: string[] = [
   "TODO: Legal entity name, registration number and registered address of the site operator.",
