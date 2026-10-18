@@ -52,12 +52,12 @@ function slideReducer(state: SlideState, action: { to: number; n: number }): Sli
 // Wide enough screens show the wide poster edge to edge. Keep in sync with the poster-wide variant (globals.css).
 const POSTER_COVER_MQ = "(min-aspect-ratio: 8/5)";
 /**
- * Matches when the space above the button strip (viewport minus the 82px header and ~110px strip)
+ * Matches when the space above the button strip (the 75svh hero minus its ~24px bottom padding, see Hero.tsx)
  * is at least `ratio` wide. Media queries can't subtract, so heights are taken in 50px bands.
  */
 const spaceAtLeast = (ratio: number) =>
   Array.from({ length: 36 }, (_, i) => 400 + i * 50)
-    .map((h) => `(max-height: ${h}px) and (min-width: ${Math.ceil(ratio * (h - 192))}px)`)
+    .map((h) => `(max-height: ${h}px) and (min-width: ${Math.ceil(ratio * (0.75 * h - 24))}px)`)
     .join(", ");
 // Thresholds sit halfway (geometrically) between the versions' shapes: √(2 × 4/3), √(4/3 × 9/16).
 const POSTER_WIDE_MQ = `${POSTER_COVER_MQ}, ${spaceAtLeast(1.63)}`;
