@@ -16,6 +16,7 @@ The two halves are separate Next.js *route groups* with their own root layout an
 ## What the public site now reads from the database
 - **Progress section:** published rows of *Admin → Updates* (latest one with its % bar, plus a dated timeline). No demo content any more. With no video and no published update the section and its nav link hide themselves.
 - **Live Farm section:** the public video set in *Admin → Live & Video*, next to a locked "Investor access only" card that links to the portal.
+- **Investor packages:** *Admin → Investors → Record investment* takes the package the investor bought (from `src/data/plans.ts`) and a start date; both can be edited later in the investor's table. Investors see it on their dashboard and under *My Investment*. Existing databases get the new `plan` / `start_date` columns automatically on first start.
 - **Visit requests:** saved to `visit_requests` (new columns `organization` and `locale` are added automatically to an existing database on first start). They appear in *Admin → dashboard* with the company and the visitor's language.
 
 ## Settings (all optional)

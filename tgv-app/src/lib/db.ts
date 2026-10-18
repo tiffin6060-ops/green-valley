@@ -14,7 +14,7 @@ export const DATA_DIR = path.join(process.cwd(), "data");
 const COLS: Record<Table, Record<string, "text" | "int" | "bool">> = {
   users: { id: "text", created_at: "text", email: "text", name: "text", mobile: "text", role: "text", active: "bool", must_change_password: "bool" },
   credentials: { id: "text", created_at: "text", user_id: "text", password_hash: "text" },
-  investments: { id: "text", created_at: "text", user_id: "text", category: "text", amount_bdt: "int", distributions_bdt: "int", stage: "text", next_review: "text", status: "text" },
+  investments: { id: "text", created_at: "text", user_id: "text", category: "text", amount_bdt: "int", distributions_bdt: "int", stage: "text", next_review: "text", status: "text", plan: "text", start_date: "text" },
   project_updates: { id: "text", created_at: "text", title: "text", body: "text", progress_pct: "int", published: "bool" },
   tickets: { id: "text", created_at: "text", user_id: "text", category: "text", subject: "text", message: "text", status: "text", reply: "text" },
   visit_requests: { id: "text", created_at: "text", full_name: "text", mobile: "text", email: "text", interest: "text", visit_date: "text", guests: "int", message: "text", status: "text", organization: "text", locale: "text" },
@@ -37,7 +37,8 @@ CREATE TABLE IF NOT EXISTS investments (
   category TEXT NOT NULL, amount_bdt INTEGER NOT NULL CHECK (amount_bdt > 0),
   distributions_bdt INTEGER NOT NULL DEFAULT 0 CHECK (distributions_bdt >= 0),
   stage TEXT NOT NULL DEFAULT 'Onboarding', next_review TEXT,
-  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','closed')));
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','closed')),
+  plan TEXT, start_date TEXT);
 CREATE INDEX IF NOT EXISTS investments_user_idx ON investments(user_id);
 CREATE TABLE IF NOT EXISTS project_updates (
   id TEXT PRIMARY KEY, created_at TEXT NOT NULL, title TEXT NOT NULL, body TEXT NOT NULL,
@@ -78,6 +79,9 @@ function conn() {
     // Migration: databases created before the new website lack these visit_requests columns.
     const have = new Set((d.prepare("PRAGMA table_info(visit_requests)").all() as { name: string }[]).map((c) => c.name));
     for (const col of ["organization", "locale"]) if (!have.has(col)) d.exec(`ALTER TABLE visit_requests ADD COLUMN ${col} TEXT`);
+    // Migration: investment package (key from src/data/plans.ts) + start date, added with the /invest page.
+    const invCols = new Set((d.prepare("PRAGMA table_info(investments)").all() as { name: string }[]).map((c) => c.name));
+    for (const col of ["plan", "start_date"]) if (!invCols.has(col)) d.exec(`ALTER TABLE investments ADD COLUMN ${col} TEXT`);
     g.__tgvdb = d;
   }
   return g.__tgvdb;

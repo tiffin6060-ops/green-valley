@@ -4,6 +4,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { generateTempPassword, requireUser, setPassword } from "@/lib/auth";
 import { CATEGORIES, STAGES } from "@/lib/constants";
+import { planKeys } from "@/data/plans";
 import { deleteStored, storeUpload } from "@/lib/files";
 import { parsePublicVideo } from "@/lib/video";
 import { clearSetting, setSetting } from "@/lib/settings";
@@ -96,8 +97,12 @@ export async function resetPassword(_p: FormState, fd: FormData): Promise<FormSt
   return { ok: true, message: `New temporary password for ${row.email}: ${temp}` };
 }
 
+const isoDate = z.union([z.literal(""), z.iso.date("Enter a valid date.")]).optional();
+
 const investmentSchema = z.object({
   user_id: z.string().min(1),
+  plan: z.enum(planKeys, "Select the package the investor purchased."),
+  start_date: isoDate,
   category: z.enum(CATEGORIES as [string, ...string[]]),
   amount_bdt: z.coerce.number().int().min(1).max(10_000_000_000),
   stage: z.enum(STAGES as [string, ...string[]]),
@@ -110,27 +115,37 @@ export async function createInvestment(_p: FormState, fd: FormData): Promise<For
   const owner = await db.get("users", parsed.data.user_id);
   if (!owner || owner.role !== "investor") return { ok: false, message: "Select a valid investor." };
   await db.insert("investments", {
-    ...parsed.data, next_review: parsed.data.next_review || null, distributions_bdt: 0, status: "active",
+    ...parsed.data, next_review: parsed.data.next_review || null, start_date: parsed.data.start_date || null,
+    distributions_bdt: 0, status: "active",
   });
-  revalidatePath("/admin/investors");
+  revalidatePath("/admin/investors"); revalidatePath("/portal"); revalidatePath("/portal/investment");
   return { ok: true, message: "Investment recorded." };
 }
 
 const editSchema = z.object({
   id: z.string().min(1),
+  plan: z.union([z.literal(""), z.enum(planKeys)], "Select a valid package.").optional(),
+  start_date: isoDate,
   stage: z.enum(STAGES as [string, ...string[]]),
-  distributions_bdt: z.coerce.number().int().min(0).max(10_000_000_000),
+  distributions_bdt: z.coerce
+    .number("Distributions must be a number.")
+    .int("Distributions must be a whole number of taka.")
+    .min(0, "Distributions cannot be negative.")
+    .max(10_000_000_000, "Distributions amount is too large."),
   next_review: z.string().optional(),
 });
-export async function updateInvestment(fd: FormData) {
+export async function updateInvestment(_p: FormState, fd: FormData): Promise<FormState> {
   await requireUser(["admin"]);
   const p = editSchema.safeParse(Object.fromEntries(fd));
-  if (!p.success) return;
+  if (!p.success) return { ok: false, message: p.error.issues[0].message };
+  if (!(await db.get("investments", p.data.id))) return { ok: false, message: "Investment not found." };
   await db.update("investments", p.data.id, {
+    plan: p.data.plan || null, start_date: p.data.start_date || null,
     stage: p.data.stage, distributions_bdt: p.data.distributions_bdt, next_review: p.data.next_review || null,
     status: p.data.stage === "Closed" ? "closed" : "active",
   });
-  revalidatePath("/admin/investors"); revalidatePath("/portal");
+  revalidatePath("/admin/investors"); revalidatePath("/portal"); revalidatePath("/portal/investment");
+  return { ok: true, message: "Saved." };
 }
 
 // ---- documents & reports (staff + admin) ----

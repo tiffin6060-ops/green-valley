@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "backup": "node scripts/backup.mjs"
+    "backup": "node scripts/backup.mjs",
+    "reset-admin": "node scripts/reset-admin.mjs"
   },
   "dependencies": {
     "better-sqlite3": "^13.0.3",

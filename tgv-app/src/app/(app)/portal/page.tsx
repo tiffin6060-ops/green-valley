@@ -2,6 +2,7 @@ import Link from "next/link";
 import { db } from "@/lib/db";
 import { requireUser } from "@/lib/auth";
 import { bdt, dateOnly } from "@/lib/format";
+import { planInfo } from "@/data/plans";
 
 export const metadata = { title: "Dashboard — Trishal Green Valley" };
 
@@ -14,12 +15,13 @@ export default async function Dashboard() {
   const today = new Date().toISOString().slice(0, 10);
   const next = active.map((i) => i.next_review).filter((d) => d && d >= today).sort()[0];
   const latest = (await db.list("project_updates", { published: true }, 1))[0];
+  const packages = [...new Set(active.map((i) => planInfo(i.plan)).filter((p) => p !== null).map((p) => `${p.planName.replace("Green Valley ", "")} · ${p.name}`))];
 
   return (
     <>
       <div className="metric-grid">
         <article><small>Total Investment</small><strong>{bdt(total)}</strong><span>{inv.length} record(s)</span></article>
-        <article><small>Active Categories</small><strong>{new Set(active.map((i) => i.category)).size}</strong><span>{[...new Set(active.map((i) => i.category))].join(", ") || "—"}</span></article>
+        <article><small>My Package</small><strong>{packages.length || "—"}</strong><span>{packages.join(", ") || "Not assigned yet"}</span></article>
         <article><small>Distribution Received</small><strong>{bdt(dist)}</strong><span>As recorded by the team</span></article>
         <article><small>Next Review</small><strong>{next ? dateOnly(next) : "—"}</strong><span>Scheduled</span></article>
       </div>
