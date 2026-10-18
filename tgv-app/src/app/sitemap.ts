@@ -4,6 +4,7 @@ import { localePath, routing } from "@/i18n/routing";
 
 const PAGES: { path: string; changeFrequency: "weekly" | "yearly"; priority: number }[] = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
+  { path: "/invest", changeFrequency: "weekly", priority: 0.8 },
   { path: "/privacy", changeFrequency: "yearly", priority: 0.3 },
   { path: "/terms", changeFrequency: "yearly", priority: 0.3 },
   { path: "/risk-disclosure", changeFrequency: "yearly", priority: 0.3 },

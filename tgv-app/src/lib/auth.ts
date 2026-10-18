@@ -97,5 +97,5 @@ export async function seedDemoData() {
   });
   await setPassword(inv.id, "Demo12345!");
   await db.insert("investments", { user_id: inv.id, category: "Cattle", amount_bdt: 1000000, distributions_bdt: 0, stage: "Production", next_review: "2026-12-15", status: "active" });
-  await db.insert("project_updates", { title: "Cattle shed development", body: "Demo update. Replace with a real, dated project update.", progress_pct: 72, published: true });
+  await db.insert("project_updates", { title: "Trishal Green Valley in a Minute", body: "A one-minute look at Trishal Green Valley.", progress_pct: 72, published: true });
 }

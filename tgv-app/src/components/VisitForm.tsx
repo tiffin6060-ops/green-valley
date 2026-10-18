@@ -15,7 +15,7 @@ const SERVER_CODES = new Set(["invalid", "rateLimited", "checkFields", "sendFail
 const MAX_MESSAGE = 1000;
 
 const inputCls =
-  "mb-3 w-full border border-white/35 bg-white/[.08] p-4 text-inherit outline-none placeholder:text-white/70 focus:border-white aria-invalid:border-[#f2b8a8]";
+  "mb-3 w-full border border-white/35 bg-white/[.08] p-4 text-inherit outline-none placeholder:text-white/70 focus:border-white aria-invalid:border-[#f2b8a8] autofill:shadow-[inset_0_0_0_1000px_#5d7462] autofill:[-webkit-text-fill-color:#fff]";
 
 function Field({ id, error, children }: { id: string; error?: string; children: ReactNode }) {
   return (

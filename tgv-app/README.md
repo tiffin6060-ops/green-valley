@@ -8,6 +8,8 @@ This version merges the new public website into the existing app. **Nothing in t
 | `/` and `/bn` | New public site (English / Bangla, dark mode, hero slider, progress video, visit form, legal pages) | `src/app/(site)/[locale]` |
 | `/login` `/portal/*` `/admin/*` `/setup` `/files/*` `/stream/*` | Investor portal, admin, secure files, CCTV streams (unchanged) | `src/app/(app)` |
 | `/api/visit` | Visit form endpoint (saves to SQLite; optional e-mail) | `src/app/api/visit/route.ts` |
+| `/invest` and `/bn/invest` | Public investment plans (from the banner) + package request form | `src/components/InvestmentPlans.tsx`, data in `src/data/plans.ts` |
+| `/api/plan-request` | Package request endpoint (e-mails trishalgreenvalley@gmail.com; nothing is stored) | `src/app/api/plan-request/route.ts` |
 
 The two halves are separate Next.js *route groups* with their own root layout and CSS, so the new Tailwind styles cannot affect the portal/admin pages. One middleware (`src/middleware.ts`) does both jobs: login/role protection for `/portal` and `/admin`, and English/Bangla routing for the public site.
 
@@ -21,6 +23,8 @@ The two halves are separate Next.js *route groups* with their own root layout an
 | --- | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | **set before `npm run build`** | Canonical URL, sitemap and social-share links, e.g. `https://yourdomain.com` (no trailing slash) |
 | `RESEND_API_KEY` + `NOTIFY_EMAIL` | any time | If both are set, each visit request is also e-mailed to staff. If not, requests are only saved. A failed e-mail never fails the request. |
+| `GMAIL_USER` + `GMAIL_APP_PASSWORD` (free) **or** `RESEND_API_KEY` | **required for /invest** | Package requests are only e-mailed, so without one of these the form shows an error. Gmail needs 2-Step Verification and an App Password (myaccount.google.com/apppasswords). When set, Gmail is also used for visit-request e-mails. |
+| `PLAN_NOTIFY_EMAIL` | optional | Where package requests go (default `trishalgreenvalley@gmail.com`) |
 | `RESEND_FROM` | optional | Sender address (needs a domain verified in Resend, except for the account owner's own address) |
 | `PROGRESS_YOUTUBE_URL` | optional | Overrides the progress video link in `src/data/content.ts` |
 | `NEXT_PUBLIC_MEDIA_HOST` | optional | CDN host for hero/progress images |

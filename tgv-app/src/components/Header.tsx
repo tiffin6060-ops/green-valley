@@ -18,6 +18,7 @@ export default function Header({ showProgress }: Props) {
   const links = [
     { href: home("#project"), label: t("project") },
     { href: home("#investment"), label: t("investment") },
+    { href: localePath(locale, "/invest"), label: t("plans") },
     ...(showProgress ? [{ href: home("#progress"), label: t("progress") }] : []),
     { href: home("#live"), label: t("live") },
     { href: home("#about"), label: t("about") },
