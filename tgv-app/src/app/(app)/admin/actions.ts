@@ -1,5 +1,8 @@
 "use server";
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
+import { site } from "@/data/content";
+import { planEmailConfigured, sendInvestorCredentialsEmail } from "@/lib/email";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { generateTempPassword, requireUser, setPassword } from "@/lib/auth";
@@ -74,7 +77,39 @@ export async function createInvestor(_p: FormState, fd: FormData): Promise<FormS
   });
   await setPassword(created.id, temp);
   revalidatePath("/admin/investors");
-  return { ok: true, message: `Account created. Temporary password (shown once, share securely): ${temp}` };
+  const mailed = fd.get("send_email") === "on"
+    ? await emailCredentials({ to: created.email, name: created.name, password: temp, reason: "new" })
+    : null;
+  return { ok: true, message: `Account created. ${credentialsNote(mailed, created.email, temp)}` };
+}
+
+/** The address the admin is using right now, so the e-mailed link works locally and in production. */
+async function loginUrl() {
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const proto = h.get("x-forwarded-proto") ?? (host?.startsWith("localhost") ? "http" : "https");
+  return host ? `${proto}://${host}/login` : `${site.url}/login`;
+}
+
+/** E-mails login details to an investor. Returns "sent", "failed" or "off" (no e-mail configured). */
+async function emailCredentials(opts: { to: string; name: string; password: string; reason: "new" | "reset" }) {
+  if (!planEmailConfigured()) return "off" as const;
+  try {
+    await sendInvestorCredentialsEmail({ ...opts, loginUrl: await loginUrl() });
+    return "sent" as const;
+  } catch (err) {
+    console.error("[credentials] e-mail failed", err);
+    return "failed" as const;
+  }
+}
+
+/** Admin-facing result line. The password is always shown once, so it can be shared by hand if e-mail failed. */
+function credentialsNote(mailed: "sent" | "failed" | "off" | null, email: string, temp: string) {
+  const pw = `Temporary password (shown once): ${temp}`;
+  if (mailed === "sent") return `Login details e-mailed to ${email}. ${pw}`;
+  if (mailed === "failed") return `E-mail to ${email} FAILED — share the login yourself. ${pw}`;
+  if (mailed === "off") return `E-mail is not set up (GMAIL_USER / GMAIL_APP_PASSWORD) — share the login yourself. ${pw}`;
+  return `${pw} — share it securely.`;
 }
 
 export async function toggleActive(fd: FormData) {
@@ -86,6 +121,22 @@ export async function toggleActive(fd: FormData) {
   revalidatePath("/admin/investors");
 }
 
+/**
+ * Permanently deletes an investor: their login, investments, support tickets and personal documents
+ * (including the stored files). Shared documents (visible to all investors) are kept.
+ */
+export async function deleteInvestor(fd: FormData) {
+  const me = await requireUser(["admin"]);
+  const id = String(fd.get("id"));
+  const row = await db.get("users", id);
+  if (!row || row.role !== "investor") return; // never delete admin/staff accounts from here
+  const docs = await db.list("documents", { user_id: id });
+  await db.remove("users", id); // foreign keys cascade to credentials, investments, tickets, documents
+  for (const d of docs) await deleteStored(d.stored_name);
+  await db.insert("audit_log", { user_id: me.id, action: "delete_investor", target: `${row.email} (${row.name})` });
+  revalidatePath("/admin/investors"); revalidatePath("/admin/documents"); revalidatePath("/admin/tickets"); revalidatePath("/admin");
+}
+
 export async function resetPassword(_p: FormState, fd: FormData): Promise<FormState> {
   await requireUser(["admin"]);
   const id = String(fd.get("id"));
@@ -94,7 +145,10 @@ export async function resetPassword(_p: FormState, fd: FormData): Promise<FormSt
   const temp = generateTempPassword();
   await setPassword(id, temp);
   await db.update("users", id, { must_change_password: true });
-  return { ok: true, message: `New temporary password for ${row.email}: ${temp}` };
+  const mailed = fd.get("send_email") === "on" && row.role === "investor"
+    ? await emailCredentials({ to: row.email, name: row.name, password: temp, reason: "reset" })
+    : null;
+  return { ok: true, message: `Password reset. ${credentialsNote(mailed, row.email, temp)}` };
 }
 
 const isoDate = z.union([z.literal(""), z.iso.date("Enter a valid date.")]).optional();

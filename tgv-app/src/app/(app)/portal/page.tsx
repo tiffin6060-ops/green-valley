@@ -15,16 +15,44 @@ export default async function Dashboard() {
   const today = new Date().toISOString().slice(0, 10);
   const next = active.map((i) => i.next_review).filter((d) => d && d >= today).sort()[0];
   const latest = (await db.list("project_updates", { published: true }, 1))[0];
-  const packages = [...new Set(active.map((i) => planInfo(i.plan)).filter((p) => p !== null).map((p) => `${p.planName.replace("Green Valley ", "")} · ${p.name}`))];
 
   return (
     <>
       <div className="metric-grid">
         <article><small>Total Investment</small><strong>{bdt(total)}</strong><span>{inv.length} record(s)</span></article>
-        <article><small>My Package</small><strong>{packages.length || "—"}</strong><span>{packages.join(", ") || "Not assigned yet"}</span></article>
+        <article><small>Active Packages</small><strong>{active.length}</strong><span>{inv.length - active.length} closed</span></article>
         <article><small>Distribution Received</small><strong>{bdt(dist)}</strong><span>As recorded by the team</span></article>
         <article><small>Next Review</small><strong>{next ? dateOnly(next) : "—"}</strong><span>Scheduled</span></article>
       </div>
+
+      <div className="panel-title" style={{ margin: "34px 0 14px" }}><small>MY PACKAGES</small><h2>Packages you have invested in</h2></div>
+      {inv.length === 0 ? (
+        <div className="empty">No packages are linked to your account yet. Our team will add them once your investment is confirmed.</div>
+      ) : (
+        <div className="package-grid">
+          {inv.map((i) => {
+            const p = planInfo(i.plan);
+            return (
+              <article key={i.id} className="portal-card package-card">
+                <div className="package-head">
+                  <small>{p ? p.planName.toUpperCase() : i.category.toUpperCase()}</small>
+                  <span className={`pill ${i.status === "active" ? "" : "off"}`}>{i.status}</span>
+                </div>
+                <h3>{p ? p.name : i.category}</h3>
+                {p && <p className="package-terms">{p.detail} · {p.value}</p>}
+                <dl>
+                  <div><dt>Invested</dt><dd>{bdt(i.amount_bdt)}</dd></div>
+                  <div><dt>Start date</dt><dd>{dateOnly(i.start_date ?? i.created_at)}</dd></div>
+                  <div><dt>Stage</dt><dd>{i.stage}</dd></div>
+                  <div><dt>Distributions</dt><dd>{bdt(i.distributions_bdt)}</dd></div>
+                  <div><dt>Next review</dt><dd>{dateOnly(i.next_review)}</dd></div>
+                </dl>
+              </article>
+            );
+          })}
+        </div>
+      )}
+
       <div className="portal-grid">
         <article className="portal-card">
           <small>LATEST PROJECT UPDATE</small>
