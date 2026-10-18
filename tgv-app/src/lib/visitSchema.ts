@@ -6,6 +6,9 @@ import { routing } from "@/i18n/routing";
  * Bangladesh mobile, loose check: optional +88/88 prefix, then 01[3-9] + 8 digits.
  * Spaces, dashes, dots and brackets are ignored.
  */
+/** Maximum people per visit request (including the applicant). */
+export const MAX_GUESTS = 2;
+
 const BD_MOBILE = /^(?:\+?88)?01[3-9]\d{8}$/;
 
 /**
@@ -27,7 +30,7 @@ export const visitSchema = z.object({
     .union([z.literal(""), z.iso.date("date")], "date")
     .optional()
     .default(""),
-  guests: z.coerce.number("guestsRequired").int("guestsInt").min(1, "guestsMin").max(50, "guestsMax"),
+  guests: z.coerce.number("guestsRequired").int("guestsInt").min(1, "guestsMin").max(MAX_GUESTS, "guestsMax"),
   message: z.string().trim().max(1000, "messageMax").optional().default(""),
   /** Page language the visitor used; saved with the lead and shown in the staff email. */
   locale: z.enum(routing.locales).optional().default(routing.defaultLocale),

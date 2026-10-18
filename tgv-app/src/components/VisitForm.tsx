@@ -6,7 +6,7 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { interestOptions } from "@/data/content";
 import { localePath, type Locale } from "@/i18n/routing";
 import { formatNumber } from "@/lib/format";
-import { fieldErrors, visitSchema, type FieldErrors } from "@/lib/visitSchema";
+import { fieldErrors, MAX_GUESTS, visitSchema, type FieldErrors } from "@/lib/visitSchema";
 
 type Status = "idle" | "sending" | "success" | "error";
 
@@ -141,7 +141,7 @@ export default function VisitForm() {
           </Field>
           <Field id="guests" error={errorText("guests")}>
             <label htmlFor="guests" className="mb-1 block text-xs text-[#dce5dd]">{t("guests")}</label>
-            <input id="guests" name="guests" type="number" min={1} max={50} defaultValue={1} required className={inputCls} {...err("guests")} />
+            <input id="guests" name="guests" type="number" min={1} max={MAX_GUESTS} defaultValue={1} required className={inputCls} {...err("guests")} />
           </Field>
         </div>
 

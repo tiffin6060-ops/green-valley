@@ -223,7 +223,7 @@
       "Other": "Other"
     },
     "date": "Preferred date",
-    "guests": "Number of guests",
+    "guests": "Number of guests (max 2)",
     "message": "Message / questions",
     "counter": "{count}/{max}",
     "submit": "Request Farm Visit",
@@ -247,7 +247,7 @@
       "guestsRequired": "Please enter the number of guests.",
       "guestsInt": "Please enter a whole number.",
       "guestsMin": "At least 1 guest.",
-      "guestsMax": "For groups larger than 50, please mention it in the message.",
+      "guestsMax": "A maximum of 2 guests is allowed per visit request.",
       "messageMax": "Message must be 1000 characters or fewer.",
       "invalid": "Please check this field.",
       "organizationMax": "Profession / company is too long."
